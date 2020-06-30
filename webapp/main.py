@@ -82,7 +82,7 @@ def create_account():
             except:
                 unsuccessful = 'Issues with credentials - Cannot sign you up :('
                 return render_template('create_account.html', umessage=unsuccessful)    
-    return render_template('create_account.html')
+    return render_template('create_account.html')   
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
@@ -91,6 +91,13 @@ def forgot_password():
             auth.send_password_reset_email(email)
             return render_template('index.html')
     return render_template('forgot_password.html')
+
+
+# @app.route('/logout', methods=['GET', 'POST'])
+# @app.route('/')
+# def logout():
+#     auth.signOut()
+#     return render_template('index.html')
 
 ####################################################################################################
 # ___________________________________END OF USER AUTHENTICATIONS___________________________________#
