@@ -76,8 +76,12 @@ def create_account():
     if (request.method == 'POST'):
             email = request.form['name']
             password = request.form['password']
-            auth.create_user_with_email_and_password(email, password)
-            return render_template('index.html')
+            try:
+                auth.create_user_with_email_and_password(email, password)
+                return render_template('index.html')
+            except:
+                unsuccessful = 'Issues with credentials - Cannot sign you up :('
+                return render_template('create_account.html', umessage=unsuccessful)    
     return render_template('create_account.html')
 
 @app.route('/forgot_password', methods=['GET', 'POST'])
