@@ -33,9 +33,13 @@ api_client = client.ApiClient()
 
 
 def get_pod_data(api_client):
-    ret_metrics = api_client.call_api(
-        '/apis/metrics.k8s.io/v1beta1/namespaces/' + 'default' + '/pods', 'GET',
-        auth_settings=['BearerToken'], response_type='json', _preload_content=False)
+    try:
+        ret_metrics = api_client.call_api(
+            '/apis/metrics.k8s.io/v1beta1/namespaces/' + 'default' + '/pods', 'GET',
+            auth_settings=['BearerToken'], response_type='json', _preload_content=False)
+    except Exception as e:
+        logging.info(f"Exception occurred: {e}")
+        return None, None
     response = ret_metrics[0].data.decode('utf-8')
     data = json.loads(response)
 
@@ -90,7 +94,9 @@ def clean_metrics(metrics):
     return metrics
 
 
-pod_data, pod_specs = get_pod_data(api_client)
+pod_data, pod_specs = None, None
+while pod_data is None and pod_specs is None:
+    pod_data, pod_specs = get_pod_data(api_client)
 metrics = extract_metrics(pod_data, pod_specs)
 logging.info(json.dumps(metrics, indent=2))
 
@@ -98,6 +104,8 @@ logging.info(json.dumps(metrics, indent=2))
 while True:
     # get metrics from cluster
     pod_data, pod_specs = get_pod_data(api_client)
+    if pod_data is None and pod_specs is None:
+        continue
     metrics = extract_metrics(pod_data, pod_specs)
 
     # broadcast from socket
